@@ -44,6 +44,28 @@ def resolve_include(including_file: Path, include_target: str, include_dirs: lis
             return candidate
 
     return None
+
+
+def discover_include_dirs(project_dir: Path) -> list[Path]:
+    if not project_dir.is_dir():
+        raise NotADirectoryError(
+            f"Project directory does not exist: {project_dir}"
+        )
+
+    include_dirs = [project_dir]
+
+    for path in project_dir.rglob("*"):
+        if path.is_dir():
+            # Skip build, version-control and other unnecessary directories.
+            if path.name.lower() in {
+                "build", "cmake-build-debug", "cmake-build-release",
+                ".git", ".vs", "__pycache__", "data"
+            }:
+                continue
+
+            include_dirs.append(path)
+
+    return include_dirs
             
 
 if __name__ == "__main__":
@@ -51,10 +73,11 @@ if __name__ == "__main__":
     project_dir = Path(rf"{project_dir}")
     
     discovered_files = discover_cpp_files(project_dir)
+    include_dirs = discover_include_dirs(project_dir)
 
     for file_path in discovered_files:
         includes = extract_includes(file_path)
-        
+
         print(f"\n{file_path}")
         for include in includes:
             print(f"  -> {include}")
