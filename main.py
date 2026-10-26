@@ -30,6 +30,20 @@ def extract_includes(file_path: Path) -> list[str]:
         includes.extend(found_includes)
 
     return includes
+
+
+def resolve_include(including_file: Path, include_target: str, include_dirs: list[Path]) -> Path | None:
+    candidate = including_file.parent / include_target
+
+    if candidate.is_file():
+        return candidate
+
+    for dir in include_dirs:
+        candidate = dir / include_target
+        if candidate.is_file():
+            return candidate
+
+    return None
             
 
 if __name__ == "__main__":
@@ -40,7 +54,7 @@ if __name__ == "__main__":
 
     for file_path in discovered_files:
         includes = extract_includes(file_path)
-    
+        
         print(f"\n{file_path}")
         for include in includes:
             print(f"  -> {include}")
