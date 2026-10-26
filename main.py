@@ -87,4 +87,8 @@ if __name__ == "__main__":
 
         print(f"\n{file_path}")
         for include in includes:
-            print(f"  -> {include}")
+            resolved_include = resolve_include(file_path, include, include_dirs)
+            if resolved_include is not None:
+                print(f"  -> {resolved_include}")
+            else:
+                print(f"  -> {include} (external or unresolved)")
