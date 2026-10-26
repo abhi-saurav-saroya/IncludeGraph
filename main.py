@@ -1,9 +1,16 @@
+import os
 from pathlib import Path
 import re
 
 SOURCE_EXTENSIONS = {
     ".c", ".cc", ".cpp", ".cxx",
     ".h", ".hh", ".hpp", ".hxx",
+}
+
+EXCLUDED_DIRS = {
+    "build", "cmake-build-debug", "cmake-build-release", ".git",
+    ".vs", "__pycache__", "data", "assets", "tests", "docs",
+    "node_modules", "venv"
 }
 
 PATTERN = r'^\s*#\s*include\s*[<"]([^">]+)[">]'
@@ -54,16 +61,16 @@ def discover_include_dirs(project_dir: Path) -> list[Path]:
 
     include_dirs = [project_dir]
 
-    for path in project_dir.rglob("*"):
-        if path.is_dir():
-            # Skip build, version-control and other unnecessary directories.
-            if path.name.lower() in {
-                "build", "cmake-build-debug", "cmake-build-release",
-                ".git", ".vs", "__pycache__", "data"
-            }:
-                continue
+    for current_dir, dirs, _ in os.walk(project_dir):
+        dirs[:] = [
+            dir  for dir in dirs
+            if dir.lower() not in EXCLUDED_DIRS
+        ]
 
-            include_dirs.append(path)
+        current_path = Path(current_dir)
+
+        for dir_name in dirs:
+            include_dirs.append(current_path / dir_name)
 
     return include_dirs
             
