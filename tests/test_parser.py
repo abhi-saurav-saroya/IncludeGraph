@@ -38,6 +38,29 @@ class TestExtractIncludes(unittest.TestCase):
 
             self.assertEqual(result, [])
 
+    
+    def test_extracts_multiple_includes_in_order(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            source_file = Path(temp_dir) / "example.cpp"
+            source_file.write_text(
+                '#include "first.hpp"\n'
+                '#include <vector>\n'
+                '#include "utils/helper.hpp"\n',
+                encoding="utf-8",
+            )
+
+            result = extract_includes(source_file)
+
+            self.assertEqual(
+                result,
+                [
+                    "first.hpp",
+                    "vector",
+                    "utils/helper.hpp",
+                ],
+            )
+
+
 
 
 if __name__ == "__main__":
