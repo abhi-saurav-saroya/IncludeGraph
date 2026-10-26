@@ -23,6 +23,22 @@ class TestExtractIncludes(unittest.TestCase):
                 ["helper.hpp", "iostream"],
             )
 
+    
+    def test_returns_empty_list_when_no_includes_exist(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            source_file = Path(temp_dir) / "example.cpp"
+            source_file.write_text(
+                "int main() {\n"
+                "    return 0;\n"
+                "}\n",
+                encoding="utf-8",
+            )
+
+            result = extract_includes(source_file)
+
+            self.assertEqual(result, [])
+
+
 
 if __name__ == "__main__":
     unittest.main()
